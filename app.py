@@ -27,7 +27,7 @@ else:
     ssl._create_default_https_context = _create_unverified_https_context
 
 # Create NLTK data directory if it doesn't exist
-nltk_data_dir = os.path.expanduser('~/nltk_data')
+nltk_data_dir = os.path.expanduser(r'\Advanced-News-Sentiment-Analyzer\nltk_data')
 if not os.path.exists(nltk_data_dir):
     os.makedirs(nltk_data_dir)
 
