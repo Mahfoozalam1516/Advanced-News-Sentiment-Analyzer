@@ -1,0 +1,9 @@
+streamlit
+pandas
+nltk
+newsapi-python
+plotly
+wordcloud
+matplotlib
+python-dateutil
+requests
