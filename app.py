@@ -18,6 +18,8 @@ import re
 import os
 import ssl
 
+nltk.download()
+
 # Handle SSL certificate verification issues
 try:
     _create_unverified_https_context = ssl._create_unverified_context
