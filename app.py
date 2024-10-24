@@ -15,20 +15,42 @@ import io
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import re
+import os
+import ssl
 
-# Download required NLTK data
+# Handle SSL certificate verification issues
 try:
-    nltk.data.find('vader_lexicon')
-    nltk.data.find('punkt')
-    nltk.data.find('stopwords')
-except LookupError:
-    nltk.download('vader_lexicon')
-    nltk.download('punkt')
-    nltk.download('stopwords')
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+# Create NLTK data directory if it doesn't exist
+nltk_data_dir = os.path.expanduser('~/nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
+
+# Download required NLTK data with explicit downloading
+@st.cache_resource
+def download_nltk_data():
+    """Download required NLTK data"""
+    try:
+        nltk.download('punkt', quiet=True)
+        nltk.download('vader_lexicon', quiet=True)
+        nltk.download('stopwords', quiet=True)
+        return True
+    except Exception as e:
+        st.error(f"Error downloading NLTK data: {str(e)}")
+        return False
 
 # Initialize NLTK components
-sia = SentimentIntensityAnalyzer()
-stop_words = set(stopwords.words('english'))
+@st.cache_resource
+def initialize_nltk():
+    """Initialize NLTK components"""
+    if download_nltk_data():
+        return SentimentIntensityAnalyzer(), set(stopwords.words('english'))
+    return None, None
 
 # Configure page settings
 st.set_page_config(
@@ -190,6 +212,12 @@ def plot_sentiment_trend(df):
     return fig
 
 def main():
+    # Initialize NLTK components
+    sia, stop_words = initialize_nltk()
+    if sia is None or stop_words is None:
+        st.error("Failed to initialize NLTK components. Please try refreshing the page.")
+        return
+        
     init_session_state()
     
     st.title("📰 Advanced News Sentiment Analyzer")
