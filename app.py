@@ -36,16 +36,13 @@ def download_nltk_data(data_path="nltk_data"):
             nltk.download('vader_lexicon', download_dir=data_path)
             nltk.download('stopwords', download_dir=data_path)
 
-
-# Before using NLTK:
-download_nltk_data() 
-
+# Download NLTK data before using it
+download_nltk_data()
 
 # Initialize NLTK components using the downloaded data
-nltk.data.path.append("nltk_data") # Tell NLTK where to find the data
+nltk.data.path.append("nltk_data")  
 sia = SentimentIntensityAnalyzer()
 stop_words = set(stopwords.words('english'))
-
 # Configure page settings
 st.set_page_config(
     page_title="Advanced News Sentiment Analyzer",
