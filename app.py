@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import nltk
+import os
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -16,17 +17,32 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import re
 
-# Download required NLTK data
-try:
-    nltk.data.find('vader_lexicon')
-    nltk.data.find('punkt')
-    nltk.data.find('stopwords')
-except LookupError:
-    nltk.download('vader_lexicon')
-    nltk.download('punkt')
-    nltk.download('stopwords')
+# Function to download NLTK data if not present
+def download_nltk_data(data_path="nltk_data"):
+    """Downloads required NLTK data if it doesn't exist."""
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+        nltk.download('punkt', download_dir=data_path)
+        nltk.download('vader_lexicon', download_dir=data_path)
+        nltk.download('stopwords', download_dir=data_path)
+    else:
+        # Check if the data exists, even if the directory does
+        try:
+            nltk.data.find(os.path.join(data_path, 'tokenizers/punkt'))
+            nltk.data.find(os.path.join(data_path, 'sentiment/vader_lexicon'))
+            nltk.data.find(os.path.join(data_path, 'corpora/stopwords'))
+        except LookupError:
+            nltk.download('punkt', download_dir=data_path)
+            nltk.download('vader_lexicon', download_dir=data_path)
+            nltk.download('stopwords', download_dir=data_path)
 
-# Initialize NLTK components
+
+# Before using NLTK:
+download_nltk_data() 
+
+
+# Initialize NLTK components using the downloaded data
+nltk.data.path.append("nltk_data") # Tell NLTK where to find the data
 sia = SentimentIntensityAnalyzer()
 stop_words = set(stopwords.words('english'))
 
