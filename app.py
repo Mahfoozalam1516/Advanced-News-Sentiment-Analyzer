@@ -39,6 +39,8 @@ def download_nltk_data():
         nltk.download('punkt', quiet=True)
         nltk.download('vader_lexicon', quiet=True)
         nltk.download('stopwords', quiet=True)
+        # Download punkt_tab 
+        nltk.download('punkt_tab', quiet=True) # Add this line 
         return True
     except Exception as e:
         st.error(f"Error downloading NLTK data: {str(e)}")
