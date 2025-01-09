@@ -27,20 +27,21 @@ else:
     ssl._create_default_https_context = _create_unverified_https_context
 
 # Create NLTK data directory if it doesn't exist
-nltk_data_dir = os.path.expanduser(r'\Advanced-News-Sentiment-Analyzer\nltk_data')
+nltk_data_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
 if not os.path.exists(nltk_data_dir):
     os.makedirs(nltk_data_dir)
+
+nltk.data.path.append(nltk_data_dir)
 
 # Download required NLTK data with explicit downloading
 @st.cache_resource
 def download_nltk_data():
     """Download required NLTK data"""
     try:
-        nltk.download('punkt', quiet=True)
-        nltk.download('vader_lexicon', quiet=True)
-        nltk.download('stopwords', quiet=True)
-        # Download punkt_tab 
-        nltk.download('punkt_tab', quiet=True) # Add this line 
+        nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('vader_lexicon', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('stopwords', download_dir=nltk_data_dir, quiet=True)
+        nltk.download('punkt_tab', download_dir=nltk_data_dir, quiet=True)
         return True
     except Exception as e:
         st.error(f"Error downloading NLTK data: {str(e)}")
