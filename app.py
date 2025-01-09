@@ -38,7 +38,7 @@ def download_nltk_data():
     """Download required NLTK data"""
     try:
         for package in ['punkt', 'vader_lexicon', 'stopwords', 'punkt_tab']:
-            nltk.download(package, download_dir=nltk_data_dir, quiet=True)
+            nltk.download('punkt_tab', download_dir=nltk_data_dir, quiet=True)
         return True
     except Exception as e:
         st.error(f"Error downloading NLTK data: {str(e)}")
