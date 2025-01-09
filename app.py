@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import nltk
-import os
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -16,33 +15,43 @@ import io
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import re
+import os
+import ssl
 
-# Function to download NLTK data if not present
-def download_nltk_data(data_path="nltk_data"):
-    """Downloads required NLTK data if it doesn't exist."""
-    if not os.path.exists(data_path):
-        os.makedirs(data_path)
-        nltk.download('punkt', download_dir=data_path)
-        nltk.download('vader_lexicon', download_dir=data_path)
-        nltk.download('stopwords', download_dir=data_path)
-    else:
-        # Check if the data exists, even if the directory does
-        try:
-            nltk.data.find(os.path.join(data_path, 'tokenizers/punkt'))
-            nltk.data.find(os.path.join(data_path, 'sentiment/vader_lexicon'))
-            nltk.data.find(os.path.join(data_path, 'corpora/stopwords'))
-        except LookupError:
-            nltk.download('punkt', download_dir=data_path)
-            nltk.download('vader_lexicon', download_dir=data_path)
-            nltk.download('stopwords', download_dir=data_path)
+# Handle SSL certificate verification issues
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
-# Download NLTK data before using it
-download_nltk_data()
+# Create NLTK data directory if it doesn't exist
+nltk_data_dir = os.path.expanduser(r'\Advanced-News-Sentiment-Analyzer\nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
 
-# Initialize NLTK components using the downloaded data
-nltk.data.path.append("nltk_data")  
-sia = SentimentIntensityAnalyzer()
-stop_words = set(stopwords.words('english'))
+# Download required NLTK data with explicit downloading
+@st.cache_resource
+def download_nltk_data():
+    """Download required NLTK data"""
+    try:
+        nltk.download('punkt', quiet=True)
+        nltk.download('vader_lexicon', quiet=True)
+        nltk.download('stopwords', quiet=True)
+        return True
+    except Exception as e:
+        st.error(f"Error downloading NLTK data: {str(e)}")
+        return False
+
+# Initialize NLTK components
+@st.cache_resource
+def initialize_nltk():
+    """Initialize NLTK components"""
+    if download_nltk_data():
+        return SentimentIntensityAnalyzer(), set(stopwords.words('english'))
+    return None, None
+
 # Configure page settings
 st.set_page_config(
     page_title="Advanced News Sentiment Analyzer",
@@ -203,6 +212,12 @@ def plot_sentiment_trend(df):
     return fig
 
 def main():
+    # Initialize NLTK components
+    sia, stop_words = initialize_nltk()
+    if sia is None or stop_words is None:
+        st.error("Failed to initialize NLTK components. Please try refreshing the page.")
+        return
+        
     init_session_state()
     
     st.title("📰 Advanced News Sentiment Analyzer")
